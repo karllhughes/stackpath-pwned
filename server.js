@@ -12,11 +12,8 @@ app.post('/auth', (req, res) => {
   const password = req.body['password'];
 
   if (password) {
-
-    // Shah-1 hash it
+    // Shah-1 hash it and break it into a prefix and suffix
     const hashedPassword = sha1(password).toUpperCase();
-
-    // Break it into a prefix and suffix
     const prefix = hashedPassword.substring(0, 5);
     const suffix = hashedPassword.substring(5);
 
@@ -24,25 +21,18 @@ app.post('/auth', (req, res) => {
     fetch('https://api.pwnedpasswords.com/range/' + prefix)
       .then(res => res.text())
       .then(body => {
-
         // Check if the response includes the suffix of the hash
         if (body.includes(suffix)) {
-
           // If so, return an error
           res.status(400).json({message: 'Please select a more secure password. This one has already been Pwned.'});
-
         } else {
-
           // If not, the user is good to go.
           res.status(200).json({message: 'Your password is secure and you may use it to register.'});
-
         }
       }).catch(err => {
-
         // Handle any API errors
         console.error(err);
         res.status(400).json({message: 'Something went wrong.'});
-
       });
   } else {
     res.status(400).json({message: '"password" field not found.'});
